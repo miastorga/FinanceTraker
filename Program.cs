@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using PersonalFinanceTrackerAPI.Data;
 using PersonalFinanceTrackerAPI.Interfaces;
 using PersonalFinanceTrackerAPI.Models;
@@ -29,7 +30,7 @@ builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerSche
 builder.Services.AddAuthorizationBuilder();
 
 // Config DbContext
-var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
+var connectionString = builder.Configuration.GetConnectionString("DevelopmentPostgreSQLConnection");
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
   opt.UseNpgsql(connectionString);
@@ -38,6 +39,11 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
 builder.Services.AddIdentityCore<AppUser>()
   .AddEntityFrameworkStores<AppDbContext>()
   .AddApiEndpoints();
+
+builder.Services.AddSwaggerGen(c =>
+{
+  c.SwaggerDoc("v1", new OpenApiInfo { Title = "PersonalFinanceTrackerAPI", Version = "v1" });
+});
 
 
 // Add CORS

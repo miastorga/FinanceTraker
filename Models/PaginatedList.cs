@@ -5,7 +5,7 @@ namespace PersonalFinanceTrackerAPI.Models;
 public class PaginatedList<T>
 {
   public List<T> Items { get; private set; } // Elementos de la página actual.
-  public int TotalCount { get; private set; } // Total de elementos sin paginar.
+  public int TotalCount { get; private set; } // Total de elementos 
   public int PageSize { get; private set; } // Tamaño de la página.
   public int CurrentPage { get; private set; } // Página actual.
 

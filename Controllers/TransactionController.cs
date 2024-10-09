@@ -81,7 +81,7 @@ namespace PersonalFinanceTrackerAPI.Controllers
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Transactions>> GetTransactionById(string id)
+    public async Task<ActionResult<TransactionDTO>> GetTransactionById(string id)
     {
       try
       {

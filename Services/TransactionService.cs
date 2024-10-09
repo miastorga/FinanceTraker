@@ -29,6 +29,10 @@ public class TransactionService : ITransactionService
 
     await _transactionRepository.AddAsync(transaction);
     var category = await _categoryService.GetCategoryByIdAsync(transaction.CategoryId, userId);
+    if (category is null)
+    {
+      throw new KeyNotFoundException("La categoria especifica no fue encontrada");
+    }
 
     var response = new TransactionResponseDTO(
           transaction.TransactionId,
@@ -52,11 +56,15 @@ public class TransactionService : ITransactionService
   public async Task<TransactionResponseDTO> GetTransactionByIdAsync(string id, string userId)
   {
     var transaction = await _transactionRepository.GetByIdAsync(id, userId);
-    var category = await _categoryService.GetCategoryByIdAsync(transaction.CategoryId, userId);
-
-    if (transaction is null || category is null)
+    if (transaction is null)
     {
-      return null;
+      throw new KeyNotFoundException("La transaccion especifica no fue encontrada");
+    }
+
+    var category = await _categoryService.GetCategoryByIdAsync(transaction.CategoryId, userId);
+    if (category is null)
+    {
+      throw new KeyNotFoundException("La categoria especifica no fue encontrada");
     }
 
     var response = new TransactionResponseDTO(

@@ -7,13 +7,21 @@ namespace PersonalFinanceTrackerAPI.Services;
 public class FinancialGoalService : IFinancialGoalService
 {
   private readonly IFinancialGoalsRepository _financialGoalRepository;
+  private readonly ICategoryRepository _categoryRepository;
 
-  public FinancialGoalService(IFinancialGoalsRepository financialGoalsRepository)
+  public FinancialGoalService(IFinancialGoalsRepository financialGoalsRepository, ICategoryRepository categoryRepository)
   {
     _financialGoalRepository = financialGoalsRepository;
+    _categoryRepository = categoryRepository;
   }
   public async Task<FinancialGoalDTO> CreateFinancialGoalAsync(FinancialGoalDTO financialGoalDTO, string userId)
   {
+    var category = await _categoryRepository.GetByIdAsync(financialGoalDTO.CategoryId, userId);
+    if (category is null)
+    {
+      throw new Exception("La categoria especificada no existe");
+    }
+
     var financialGoal = new FinancialGoal
     {
       FinancialGoalId = Guid.NewGuid().ToString(),
