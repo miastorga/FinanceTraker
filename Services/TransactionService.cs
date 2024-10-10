@@ -29,43 +29,30 @@ public class TransactionService : ITransactionService
 
     await _transactionRepository.AddAsync(transaction);
     var category = await _categoryService.GetCategoryByIdAsync(transaction.CategoryId, userId);
-    if (category is null)
-    {
-      throw new KeyNotFoundException("La categoria especifica no fue encontrada");
-    }
-
     var response = new TransactionResponseDTO(
-          transaction.TransactionId,
-          transaction.UserId,
-          transaction.Amount,
-          transaction.TransactionType,
-          transaction.CategoryId,
-          category.Name,
-          transaction.Date,
-          transaction.Description
-      );
+         transaction.TransactionId,
+         transaction.UserId,
+         transaction.Amount,
+         transaction.TransactionType,
+         transaction.CategoryId,
+         category.Name,
+         transaction.Date,
+         transaction.Description
+     );
 
     return response;
   }
 
   public async Task<PaginatedList<Transactions>> GetAllTransactions(string userId, int page, int results, DateTime? startDate, DateTime? endDate, string? categoryName, string? transactionType)
   {
-    return await _transactionRepository.GetAllTransactionsAsync(userId, page, results, startDate, endDate, categoryName, transactionType);
+    var transactions = await _transactionRepository.GetAllTransactionsAsync(userId, page, results, startDate, endDate, categoryName, transactionType);
+    return transactions;
   }
 
   public async Task<TransactionResponseDTO> GetTransactionByIdAsync(string id, string userId)
   {
     var transaction = await _transactionRepository.GetByIdAsync(id, userId);
-    if (transaction is null)
-    {
-      throw new KeyNotFoundException("La transaccion especifica no fue encontrada");
-    }
-
     var category = await _categoryService.GetCategoryByIdAsync(transaction.CategoryId, userId);
-    if (category is null)
-    {
-      throw new KeyNotFoundException("La categoria especifica no fue encontrada");
-    }
 
     var response = new TransactionResponseDTO(
            transaction.TransactionId,
@@ -85,11 +72,10 @@ public class TransactionService : ITransactionService
   {
     var transactions = await _transactionRepository.GetAllTransactionsByUserAsync(userId);
 
-    // Obtener los nombres de categorías desde la base de datos, si no se tiene en los DTOs
     var categories = await _categoryService.GetAllCategoriesAsync(userId);
+
     var categoryNames = categories.ToDictionary(c => c.CategoryId, c => c.CategoryName);
 
-    // Calcular ingresos, gastos y balances
     var totalIncome = transactions
         .Where(t => t.TransactionType == "ingreso")
         .Sum(t => t.Amount);
@@ -127,14 +113,10 @@ public class TransactionService : ITransactionService
       IncomeByCategory = incomeByCategory
     };
   }
-
   public async Task<TransactionDTO> RemoveTransactionAsync(string id, string userId)
   {
     var transaction = await _transactionRepository.RemoveAync(id, userId);
-    if (transaction is null)
-    {
-      return null;
-    }
+
     var transanctionResponse = new TransactionDTO
     (
       transaction.Amount,
@@ -149,10 +131,6 @@ public class TransactionService : ITransactionService
   public async Task<TransactionDTO> UpdateTransactionAsync(string id, TransactionDTO transactionDto, string userId)
   {
     var updatedTransaction = await _transactionRepository.UpdateAync(id, transactionDto, userId);
-    if (updatedTransaction is null)
-    {
-      return null;
-    }
     var updatedTransactionDTO = new TransactionDTO
        (
          updatedTransaction.Amount,

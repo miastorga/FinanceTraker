@@ -17,11 +17,6 @@ public class FinancialGoalService : IFinancialGoalService
   public async Task<FinancialGoalDTO> CreateFinancialGoalAsync(FinancialGoalDTO financialGoalDTO, string userId)
   {
     var category = await _categoryRepository.GetByIdAsync(financialGoalDTO.CategoryId, userId);
-    if (category is null)
-    {
-      throw new Exception("La categoria especificada no existe");
-    }
-
     var financialGoal = new FinancialGoal
     {
       FinancialGoalId = Guid.NewGuid().ToString(),
@@ -55,11 +50,6 @@ public class FinancialGoalService : IFinancialGoalService
   {
     var financialGoal = await _financialGoalRepository.GetByIdAsync(id, userId);
 
-    if (financialGoal is null)
-    {
-      return null;
-    }
-
     var response = new FinancialGoalDTO(
            financialGoal.CategoryId,
            financialGoal.GoalAmount,
@@ -74,10 +64,6 @@ public class FinancialGoalService : IFinancialGoalService
   public async Task<FinancialGoalDTO> RemoveFinancialGoalAsync(string id, string userId)
   {
     var financialGoal = await _financialGoalRepository.RemoveAync(id, userId);
-    if (financialGoal is null)
-    {
-      return null;
-    }
     var financialGoalResponse = new FinancialGoalDTO
     (
       financialGoal.CategoryId,
@@ -92,10 +78,6 @@ public class FinancialGoalService : IFinancialGoalService
   public async Task<FinancialGoalDTO> UpdateFinancialGoalAsync(string id, FinancialGoalDTO financialGoalDTO, string userId)
   {
     var updatedFinancialGoal = await _financialGoalRepository.UpdateAync(id, financialGoalDTO, userId);
-    if (updatedFinancialGoal is null)
-    {
-      return null;
-    }
     var updatedFinancialGoalDto = new FinancialGoalDTO
        (
          updatedFinancialGoal.CategoryId,

@@ -76,7 +76,11 @@ namespace PersonalFinanceTrackerAPI.Controllers
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -93,16 +97,23 @@ namespace PersonalFinanceTrackerAPI.Controllers
 
         var transaction = await _transactionService.GetTransactionByIdAsync(id, userId);
 
-        if (transaction == null)
-        {
-          return NotFound();
-        }
-
         return Ok(transaction);
+      }
+      catch (KeyNotFoundException ex)
+      {
+        return NotFound(new ErrorResponse
+        {
+          ErrorCode = "404",
+          ErrorMessage = ex.Message
+        });
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -122,13 +133,16 @@ namespace PersonalFinanceTrackerAPI.Controllers
           return Unauthorized();
         }
 
-
         var createdTransaction = await _transactionService.CreateTransactionAsync(transaction, userId);
         return Ok(createdTransaction);
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -144,15 +158,24 @@ namespace PersonalFinanceTrackerAPI.Controllers
         }
 
         var transaction = await _transactionService.RemoveTransactionAsync(id, userId);
-        if (transaction is null)
-        {
-          return NotFound();
-        }
+
         return NoContent();
+      }
+      catch (KeyNotFoundException ex)
+      {
+        return NotFound(new ErrorResponse
+        {
+          ErrorCode = "404",
+          ErrorMessage = ex.Message
+        });
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -174,16 +197,23 @@ namespace PersonalFinanceTrackerAPI.Controllers
 
         var updatedTransaction = await _transactionService.UpdateTransactionAsync(id, transactionDTO, userId);
 
-        if (updatedTransaction is null)
-        {
-          return NotFound();
-        }
-
         return Ok(updatedTransaction);
+      }
+      catch (KeyNotFoundException ex)
+      {
+        return NotFound(new ErrorResponse
+        {
+          ErrorCode = "404",
+          ErrorMessage = ex.Message
+        });
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 

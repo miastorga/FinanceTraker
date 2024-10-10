@@ -34,7 +34,11 @@ namespace PersonalFinanceTrackerAPI.Controllers
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -49,20 +53,16 @@ namespace PersonalFinanceTrackerAPI.Controllers
           return Unauthorized();
         }
         var category = await _categoryService.GetCategoryByIdAsync(id, userId);
-        if (id is null)
-        {
-          return BadRequest();
-        }
-        if (category == null)
-        {
-          return NotFound();
-        }
 
         return Ok(category);
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -93,7 +93,11 @@ namespace PersonalFinanceTrackerAPI.Controllers
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -108,15 +112,23 @@ namespace PersonalFinanceTrackerAPI.Controllers
           return Unauthorized();
         }
         var category = await _categoryService.RemoveCategoryAsync(id, userId);
-        if (category is null)
-        {
-          return NotFound();
-        }
         return NoContent();
+      }
+      catch (KeyNotFoundException ex)
+      {
+        return NotFound(new ErrorResponse
+        {
+          ErrorCode = "404",
+          ErrorMessage = ex.Message
+        });
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -137,17 +149,23 @@ namespace PersonalFinanceTrackerAPI.Controllers
         }
 
         var updatedCategory = await _categoryService.UpdateTransactionAsync(id, category, userId);
-
-        if (updatedCategory is null)
-        {
-          return NotFound();
-        }
-
         return Ok(updatedCategory);
+      }
+      catch (KeyNotFoundException ex)
+      {
+        return NotFound(new ErrorResponse
+        {
+          ErrorCode = "404",
+          ErrorMessage = ex.Message
+        });
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
   }

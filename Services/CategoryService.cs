@@ -1,5 +1,6 @@
 using System;
 using PersonalFinanceTrackerAPI.Interfaces;
+using PersonalFinanceTrackerAPI.Migrations;
 using PersonalFinanceTrackerAPI.Models;
 
 namespace PersonalFinanceTrackerAPI.Services;
@@ -28,17 +29,7 @@ public class CategoryService : ICategoryService
 
   public async Task<CategoryDTO> GetCategoryByIdAsync(string id, string userId)
   {
-    if (string.IsNullOrWhiteSpace(id))
-    {
-      throw new ArgumentException("User ID is required.", nameof(id));
-    }
     var category = await _categoryRepository.GetByIdAsync(id, userId);
-
-    if (category is null)
-    {
-      return null;
-    }
-
     var categoryDTO = new CategoryDTO(
       category.Name
     );
@@ -47,16 +38,14 @@ public class CategoryService : ICategoryService
 
   public async Task<IEnumerable<CategoryResponseDTO>> GetAllCategoriesAsync(string userId)
   {
-    return await _categoryRepository.GetAllAsync(userId);
+    var categoria = await _categoryRepository.GetAllAsync(userId);
+    return categoria;
   }
 
   public async Task<CategoryDTO> RemoveCategoryAsync(string id, string userId)
   {
+
     var category = await _categoryRepository.RemoveAync(id, userId);
-    if (category is null)
-    {
-      return null;
-    }
     var categoryResponse = new CategoryDTO
     (
       category.Name
@@ -66,16 +55,12 @@ public class CategoryService : ICategoryService
 
   public async Task<CategoryDTO> UpdateTransactionAsync(string id, CategoryDTO categoryDTO, string userId)
   {
+
     var updatedTransaction = await _categoryRepository.UpdateAync(id, categoryDTO, userId);
-    if (updatedTransaction is null)
-    {
-      return null;
-    }
     var updatedTransactionDTO = new CategoryDTO
        (
          updatedTransaction.Name
        );
-
     return updatedTransactionDTO;
   }
 }

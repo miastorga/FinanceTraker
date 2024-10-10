@@ -25,6 +25,10 @@ public class CategoryRepository : ICategoryRepository
   {
     var category = await _context.Category
     .FirstOrDefaultAsync(c => c.CategoryId == id && c.UserId == userId);
+    if (category is null)
+    {
+      throw new KeyNotFoundException("Transacción no encontrada para el usuario especificado.");
+    }
     return category;
   }
 
@@ -41,10 +45,6 @@ public class CategoryRepository : ICategoryRepository
   public async Task<Category> RemoveAync(string id, string userId)
   {
     var categoryById = await GetByIdAsync(id, userId);
-    if (categoryById is null)
-    {
-      return null;
-    }
     _context.Category.Remove(categoryById);
     await _context.SaveChangesAsync();
     return categoryById;
@@ -53,13 +53,8 @@ public class CategoryRepository : ICategoryRepository
   public async Task<Category> UpdateAync(string id, CategoryDTO categoryDTO, string userId)
   {
     var categoryById = await GetByIdAsync(id, userId);
-    if (categoryById is null)
-    {
-      return null;
-    };
     _context.Entry(categoryById).CurrentValues.SetValues(categoryDTO);
     await _context.SaveChangesAsync();
-
     return categoryById;
   }
 }

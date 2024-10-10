@@ -30,17 +30,23 @@ namespace PersonalFinanceTrackerAPI.Controllers
         }
 
         var financialGoal = await _financialGoalService.GetFinancialGoalByIdAsync(id, userId);
-
-        if (financialGoal == null)
-        {
-          return NotFound();
-        }
-
         return Ok(financialGoal);
+      }
+      catch (KeyNotFoundException ex)
+      {
+        return NotFound(new ErrorResponse
+        {
+          ErrorCode = "404",
+          ErrorMessage = ex.Message
+        });
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -71,7 +77,11 @@ namespace PersonalFinanceTrackerAPI.Controllers
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
     [HttpPost]
@@ -95,7 +105,11 @@ namespace PersonalFinanceTrackerAPI.Controllers
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -111,15 +125,23 @@ namespace PersonalFinanceTrackerAPI.Controllers
         }
 
         var financialGoal = await _financialGoalService.RemoveFinancialGoalAsync(id, userId);
-        if (financialGoal is null)
-        {
-          return NotFound();
-        }
         return NoContent();
+      }
+      catch (KeyNotFoundException ex)
+      {
+        return NotFound(new ErrorResponse
+        {
+          ErrorCode = "404",
+          ErrorMessage = ex.Message
+        });
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
 
@@ -140,17 +162,23 @@ namespace PersonalFinanceTrackerAPI.Controllers
         }
 
         var updatedFinancialGoal = await _financialGoalService.UpdateFinancialGoalAsync(id, financialGoalDTO, userId);
-
-        if (updatedFinancialGoal is null)
-        {
-          return NotFound();
-        }
-
         return Ok(updatedFinancialGoal);
+      }
+      catch (KeyNotFoundException ex)
+      {
+        return NotFound(new ErrorResponse
+        {
+          ErrorCode = "404",
+          ErrorMessage = ex.Message
+        });
       }
       catch (Exception ex)
       {
-        return BadRequest(ex.Message);
+        return BadRequest(new ErrorResponse
+        {
+          ErrorCode = "400",
+          ErrorMessage = ex.Message
+        });
       }
     }
   }
