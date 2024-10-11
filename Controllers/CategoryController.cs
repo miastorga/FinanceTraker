@@ -2,12 +2,14 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using PersonalFinanceTrackerAPI.Interfaces;
 using PersonalFinanceTrackerAPI.Models;
 
 namespace PersonalFinanceTrackerAPI.Controllers
 {
   [Route("api/[controller]")]
+  [EnableRateLimiting("SlidingWindowPolicy")]
   [ApiController]
   [Authorize]
   public class CategoryController : ControllerBase

@@ -19,7 +19,6 @@ public class PaginatedList<T>
 
   // Total de páginas, calculado dinámicamente
   public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
-
   public bool HasPreviousPage => CurrentPage > 1;
   public bool HasNextPage => CurrentPage < TotalPages;
 }

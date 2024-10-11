@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using PersonalFinanceTrackerAPI.Data;
@@ -28,6 +29,19 @@ builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerSche
 
 //Add Authorization
 builder.Services.AddAuthorizationBuilder();
+
+// Add Rate Limiting
+builder.Services.AddRateLimiter(opt =>
+{
+  opt.AddSlidingWindowLimiter("SlidingWindowPolicy", opt =>
+  {
+    opt.Window = TimeSpan.FromSeconds(10);
+    opt.PermitLimit = 4;
+    opt.QueueLimit = 3;
+    opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+    opt.SegmentsPerWindow = 3;
+  }).RejectionStatusCode = 429;
+});
 
 // Config DbContext
 var connectionString = builder.Configuration.GetConnectionString("DevelopmentPostgreSQLConnection");
@@ -69,9 +83,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseRateLimiter();
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
