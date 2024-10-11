@@ -1,6 +1,7 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.VisualBasic;
 using PersonalFinanceTrackerAPI.Interfaces;
 using PersonalFinanceTrackerAPI.Models;
@@ -8,6 +9,8 @@ using PersonalFinanceTrackerAPI.Models;
 namespace PersonalFinanceTrackerAPI.Controllers
 {
   [Route("api/[controller]")]
+  [ApiVersion("1.0")]
+  [EnableRateLimiting("SlidingWindowPolicy")]
   [ApiController]
   public class FinancialGoalController : ControllerBase
   {

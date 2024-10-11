@@ -10,6 +10,7 @@ using PersonalFinanceTrackerAPI.Models;
 namespace PersonalFinanceTrackerAPI.Controllers
 {
   [Route("api/[controller]")]
+  [ApiVersion("1.0")]
   [EnableRateLimiting("SlidingWindowPolicy")]
   [ApiController]
   [Authorize]
