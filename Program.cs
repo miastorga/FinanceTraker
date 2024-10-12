@@ -1,3 +1,4 @@
+using System.Threading.RateLimiting;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -49,9 +50,17 @@ builder.Services.AddRateLimiter(opt =>
     opt.Window = TimeSpan.FromSeconds(10);
     opt.PermitLimit = 4;
     opt.QueueLimit = 3;
-    opt.QueueProcessingOrder = System.Threading.RateLimiting.QueueProcessingOrder.OldestFirst;
+    opt.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
     opt.SegmentsPerWindow = 3;
   }).RejectionStatusCode = 429;
+
+  opt.AddFixedWindowLimiter("HealthCheckPolicy", fixedOptions =>
+ {
+   fixedOptions.Window = TimeSpan.FromMinutes(1);
+   fixedOptions.PermitLimit = 4; // Número de peticiones permitidas en cada ventana de tiempo
+   fixedOptions.QueueLimit = 2;   // Número de peticiones adicionales en la cola
+   fixedOptions.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+ }).RejectionStatusCode = 429;
 });
 
 // Add Versioning
@@ -135,7 +144,7 @@ app.MapHealthChecks("/health", new HealthCheckOptions()
         [HealthStatus.Degraded] = StatusCodes.Status503ServiceUnavailable,
         [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
     }
-}).RequireAuthorization();
+}).RequireAuthorization().RequireRateLimiting("HealthCheckPolicy");
 app.UseRateLimiter();
 app.UseAuthorization();
 app.MapIdentityApi<AppUser>();
