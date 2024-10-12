@@ -1,8 +1,11 @@
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.OpenApi.Models;
 using PersonalFinanceTrackerAPI;
 using PersonalFinanceTrackerAPI.Data;
@@ -15,6 +18,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+var connectionString = builder.Configuration.GetConnectionString("DevelopmentPostgreSQLConnection");
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -26,6 +30,10 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IFinancialGoalsRepository, FinancialGoalRepository>();
 builder.Services.AddScoped<IFinancialGoalService, FinancialGoalService>();
+
+// Health check
+builder.Services.AddHealthChecks().AddNpgSql(
+  connectionString!, name: "Neon PostgreSQL");
 
 // Add Authentication
 builder.Services.AddAuthentication().AddBearerToken(IdentityConstants.BearerScheme);
@@ -56,7 +64,6 @@ builder.Services.AddApiVersioning(opt =>
 });
 
 // Config DbContext
-var connectionString = builder.Configuration.GetConnectionString("DevelopmentPostgreSQLConnection");
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
   opt.UseNpgsql(connectionString);
@@ -76,7 +83,6 @@ builder.Services.AddSwaggerGen(c =>
     Name = "Authorization",
     Type = SecuritySchemeType.ApiKey
   });
-  c.OperationFilter<AddVersionHeaderOperationFilter>(); // Asegúrate de implementar este filtro
   c.AddSecurityRequirement(new OpenApiSecurityRequirement
     {
         { new OpenApiSecurityScheme
@@ -112,15 +118,24 @@ if (app.Environment.IsDevelopment())
 }
 else
 {
-  // Esto habilitará Swagger en producción
   app.UseSwagger();
   app.UseSwaggerUI(c =>
   {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "PersonalFinanceTrackerAPI v1");
-    c.RoutePrefix = string.Empty; // Para que Swagger UI esté en la raíz
+    c.RoutePrefix = string.Empty;
   });
 }
 app.UseHttpsRedirection();
+app.MapHealthChecks("/health", new HealthCheckOptions()
+{
+  ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse,
+  ResultStatusCodes =
+    {
+        [HealthStatus.Healthy] = StatusCodes.Status200OK,
+        [HealthStatus.Degraded] = StatusCodes.Status503ServiceUnavailable,
+        [HealthStatus.Unhealthy] = StatusCodes.Status503ServiceUnavailable
+    }
+}).RequireAuthorization();
 app.UseRateLimiter();
 app.UseAuthorization();
 app.MapIdentityApi<AppUser>();
