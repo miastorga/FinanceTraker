@@ -3,6 +3,7 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
@@ -67,11 +68,10 @@ builder.Services.AddRateLimiter(opt =>
 builder.Services.AddApiVersioning(opt =>
 {
   opt.AssumeDefaultVersionWhenUnspecified = true;
-  opt.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(1, 0);
+  opt.DefaultApiVersion = new ApiVersion(1, 0);
   opt.ReportApiVersions = true;
-  opt.ApiVersionReader = new HeaderApiVersionReader("x-version");
+  opt.ApiVersionReader = new UrlSegmentApiVersionReader();
 });
-
 // Config DbContext
 builder.Services.AddDbContext<AppDbContext>(opt =>
 {
@@ -103,6 +103,7 @@ builder.Services.AddSwaggerGen(c =>
                 }
             }, new string[] {} }
     });
+
 });
 
 // Add CORS
@@ -117,7 +118,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
