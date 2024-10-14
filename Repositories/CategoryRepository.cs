@@ -27,7 +27,7 @@ public class CategoryRepository : ICategoryRepository
     .FirstOrDefaultAsync(c => c.CategoryId == id && c.UserId == userId);
     if (category is null)
     {
-      throw new KeyNotFoundException("Transacción no encontrada para el usuario especificado.");
+      throw new KeyNotFoundException($"No se encontro la categoria con el id {id}");
     }
     return category;
   }
