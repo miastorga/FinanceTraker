@@ -16,7 +16,7 @@ Esta API, creada en C# y hospedada en Azure, es una solución completa para el s
 - **Metas Financieras**: Los usuarios pueden establecer metas financieras para ayudarlos a planificar su presupuesto. Cada meta incluye:
   - Categoría
   - Cantidad objetivo
-  - Periodo de tiempo
+  - Periodo de tiempo (Diario/Semanal/Mensual/Anual)
   - Fecha de inicio y fin
 
 ## Tecnologías Utilizadas
