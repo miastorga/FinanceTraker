@@ -30,7 +30,11 @@ namespace PersonalFinanceTrackerAPI.Controllers
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
         {
-          return Unauthorized();
+          return Unauthorized(new ErrorResponse
+          {
+            ErrorCode = "401",
+            ErrorMessage = "No se ha proporcionado un token de autenticación válido o ha expirado. Por favor, inicie sesión nuevamente."
+          });
         }
         var categories = await _categoryService.GetAllCategoriesAsync(userId);
         return Ok(categories);

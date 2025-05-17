@@ -13,12 +13,15 @@ public class PaginatedList<T>
   {
     Items = items;
     TotalCount = count;
-    CurrentPage = pageIndex;
-    PageSize = pageSize;
+    CurrentPage = pageIndex < 1 ? 1 : pageIndex;
+    PageSize = pageSize < 0 ? 0 : pageSize;
   }
 
   // Total de páginas, calculado dinámicamente
-  public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
+  public int TotalPages => PageSize > 0 
+    ? (int)Math.Ceiling(TotalCount / (double)PageSize) 
+    : (TotalCount > 0 ? 1 : 0); // Si hay elementos pero PageSize es 0, devuelve 1 página
+
   public bool HasPreviousPage => CurrentPage > 1;
   public bool HasNextPage => CurrentPage < TotalPages;
 }

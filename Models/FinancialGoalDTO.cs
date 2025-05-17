@@ -12,7 +12,7 @@ public record FinancialGoalDTO
   [Range(1, int.MaxValue, ErrorMessage = "Goal amount must be greater than zero.")]
  int GoalAmount,
   [Required(ErrorMessage = "Period is required")]
-  [AllowedValues("diario", "semanal", "mensual", "anual")]
+  [AllowedValues("diario", "semanal", "mensual", "anual", ErrorMessage = "Period must be diario, semanal, mensual or anual")]
  string Period,
   [Required(ErrorMessage = "Start date is required.")]
  DateTime StartDate,

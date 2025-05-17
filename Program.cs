@@ -15,12 +15,13 @@ using PersonalFinanceTrackerAPI.Interfaces;
 using PersonalFinanceTrackerAPI.Models;
 using PersonalFinanceTrackerAPI.Repositories;
 using PersonalFinanceTrackerAPI.Services;
+using PersonalFinanceTrackerAPI.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
+var connectionString = builder.Configuration.GetConnectionString("DevelopmentPostgreSQLConnection");
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -84,7 +85,19 @@ builder.Services.AddIdentityCore<AppUser>()
 
 builder.Services.AddSwaggerGen(c =>
 {
-  c.SwaggerDoc("v1", new OpenApiInfo { Title = "PersonalFinanceTrackerAPI", Version = "v1" });
+  c.SwaggerDoc("v1", new OpenApiInfo
+  {
+    Title = "PersonalFinanceTrackerAPI",
+    Version = "v1",
+    Description = "API para el seguimiento de finanzas personales",
+    Contact = new OpenApiContact
+    {
+      Name = "Miguel Astorga",
+      Email = "mastorga.leiva@gmail.com",
+      Url = new Uri("https://www.linkedin.com/in/mastorga-leiva/")
+    }
+  });
+  //c.DocumentFilter<HealthCheckSwaggerFilter>();
   c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
   {
     In = ParameterLocation.Header,

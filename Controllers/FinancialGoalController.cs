@@ -22,7 +22,7 @@ namespace PersonalFinanceTrackerAPI.Controllers
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<FinancialGoal>> GetFinancialGoalById(string id)
+    public async Task<ActionResult<FinancialGoalDTO>> GetFinancialGoalById(string id)
     {
       try
       {
@@ -54,7 +54,10 @@ namespace PersonalFinanceTrackerAPI.Controllers
     }
 
     [HttpGet]
-    public async Task<ActionResult<FinancialGoalDTO>> GetAllFinancialGoals(int page, int results, DateTime? startDate, DateTime? endDate, string? categoryName, string? period, int goalAmount)
+    public async Task<ActionResult<FinancialGoalDTO>> GetAllFinancialGoals(
+      DateTime? startDate, DateTime? endDate, string? categoryName, string? period, int goalAmount = 0,
+      int page = 1, int results = 10
+      )
     {
       try
       {
@@ -64,6 +67,17 @@ namespace PersonalFinanceTrackerAPI.Controllers
           return Unauthorized();
         }
 
+        if (page <= 0)
+        {
+          page = 1;
+        }
+        
+        // Si results es <= 0, usamos el valor predeterminado 10
+        if (results <= 0)
+        {
+          results = 10;
+        }
+        
         if (startDate.HasValue && startDate.Value.Kind == DateTimeKind.Unspecified)
         {
           startDate = DateTime.SpecifyKind(startDate.Value, DateTimeKind.Utc);

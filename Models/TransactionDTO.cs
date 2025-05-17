@@ -8,7 +8,7 @@ public record TransactionDTO(
   int Amount,
 
   [Required(ErrorMessage = "Transaction Type is required.")]
-  [AllowedValues("ingreso", "gasto")]
+  [AllowedValues("ingreso", "gasto",ErrorMessage = "TransactionType must be 'ingreso' or 'gasto'.")]
   string TransactionType,
 
   [Required(ErrorMessage = "Category ID is required.")]
