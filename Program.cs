@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -16,6 +17,7 @@ using PersonalFinanceTrackerAPI.Models;
 using PersonalFinanceTrackerAPI.Repositories;
 using PersonalFinanceTrackerAPI.Services;
 using PersonalFinanceTrackerAPI.Filters;
+using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -31,7 +33,12 @@ else
   connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
 }
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+  .AddJsonOptions(options =>
+  {
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+  });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -42,6 +49,8 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IFinancialGoalsRepository, FinancialGoalRepository>();
 builder.Services.AddScoped<IFinancialGoalService, FinancialGoalService>();
+builder.Services.AddScoped<IAccountRepository, AccountRepository>();
+builder.Services.AddScoped<IAccountService, AccountService>();
 
 // Health check
 builder.Services.AddHealthChecks().AddNpgSql(
@@ -107,6 +116,7 @@ builder.Services.AddSwaggerGen(c =>
     }
   });
   //c.DocumentFilter<HealthCheckSwaggerFilter>();
+  c.MapType<AccountType>(() => new OpenApiSchema { Type = "string" });
   c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
   {
     In = ParameterLocation.Header,
@@ -154,6 +164,7 @@ else
   {
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "PersonalFinanceTrackerAPI v1");
     c.RoutePrefix = string.Empty;
+    c.DocExpansion(DocExpansion.List); 
   });
 }
 app.UseHttpsRedirection();

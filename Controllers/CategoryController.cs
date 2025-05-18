@@ -24,7 +24,6 @@ namespace PersonalFinanceTrackerAPI.Controllers
       _environment = environment;
     }
 
-    // En algún controlador
     [HttpGet("environment")]
     [AllowAnonymous]
     public IActionResult GetEnvironment()

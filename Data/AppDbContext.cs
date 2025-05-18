@@ -61,6 +61,13 @@ namespace PersonalFinanceTrackerAPI.Data
        .WithMany(u => u.Category) // Necesitarás agregar una colección en AppUser
        .HasForeignKey(c => c.UserId)
        .OnDelete(DeleteBehavior.Restrict);
+      
+      modelBuilder.Entity<Account>(entity =>
+      {
+          entity.Property(e => e.AccountType)
+              .HasConversion<string>() // This is the key line
+              .HasColumnType("text"); // Recommended: Specify the column type
+      });
     }
   }
 }
