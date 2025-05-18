@@ -16,12 +16,26 @@ namespace PersonalFinanceTrackerAPI.Controllers
   public class CategoryController : ControllerBase
   {
     private readonly ICategoryService _categoryService;
+    private readonly IWebHostEnvironment _environment;
 
-    public CategoryController(ICategoryService categoryService)
+    public CategoryController(ICategoryService categoryService, IWebHostEnvironment environment)
     {
       _categoryService = categoryService;
+      _environment = environment;
     }
 
+    // En algún controlador
+    [HttpGet("environment")]
+    [AllowAnonymous]
+    public IActionResult GetEnvironment()
+    {
+      return Ok(new { 
+        Environment = _environment.EnvironmentName,
+        IsDevelopment = _environment.IsDevelopment(),
+        IsProduction = _environment.IsProduction()
+      });
+    }
+    
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CategoryResponseDTO>>> GetAllCategoriesAsync()
     {

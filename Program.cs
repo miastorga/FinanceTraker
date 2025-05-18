@@ -21,7 +21,16 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-var connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
+string connectionString;
+if (builder.Environment.IsDevelopment())
+{
+  connectionString = builder.Configuration.GetConnectionString("DevelopmentPostgreSQLConnection");
+}
+else
+{
+  connectionString = builder.Configuration.GetConnectionString("PostgreSQLConnection");
+}
+
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
