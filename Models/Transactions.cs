@@ -32,5 +32,8 @@ public class Transactions
   [Required(ErrorMessage = "Date is required.")]
   public DateTime Date { get; set; }
   public string Description { get; set; }
+  
+  public string AccountId { get; set; }
 
+  public Account Account { get; set; }
 }

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using PersonalFinanceTrackerAPI.Data;
@@ -11,9 +12,11 @@ using PersonalFinanceTrackerAPI.Data;
 namespace PersonalFinanceTrackerAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250518184228_CreateCompleteDataModel")]
+    partial class CreateCompleteDataModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -163,12 +166,15 @@ namespace PersonalFinanceTrackerAPI.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<PersonalFinanceTrackerAPI.Models.AccountType>("AccountType")
-                        .HasConversion<string>()
-                        .HasColumnType("text"); 
+                    b.Property<int>("AccountType")
+                        .HasColumnType("integer");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("CurrentBalance")
                         .HasColumnType("integer");
