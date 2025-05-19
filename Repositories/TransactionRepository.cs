@@ -23,7 +23,7 @@ public class TransactionRepository : ITransactionRepository
     return transaction;
   }
 
-  public async Task<PaginatedList<Transactions>> GetAllTransactionsAsync(string userId, int page, int results, DateTime? startDate, DateTime? endDate, string? categoryName, string? transactionType)
+  public async Task<PaginatedList<TransactionResponseDTO>> GetAllTransactionsAsync(string userId, int page, int results, DateTime? startDate, DateTime? endDate, string? categoryName, string? transactionType)
   {
     var query = _context.Transactions.AsQueryable().Where(t => t.UserId == userId);
 
@@ -64,9 +64,19 @@ public class TransactionRepository : ITransactionRepository
       .AsNoTracking()
       .Skip((page - 1) * results)
       .Take(results)
+      .Select(t => new TransactionResponseDTO(
+        t.TransactionId,
+        t.Amount,
+        t.TransactionType,
+        t.CategoryId,
+        t.Category.Name, // Nombre de la categoría
+        t.Date,
+        t.Description,
+        t.AccountId
+      ))
       .ToListAsync();
 
-    return new PaginatedList<Transactions>(transactions, totalCount, page, results);
+    return new PaginatedList<TransactionResponseDTO>(transactions, totalCount, page, results);
   }
 
   public async Task<IEnumerable<TransactionDTO>> GetAllTransactionsByUserAsync(string userId)
@@ -79,9 +89,15 @@ public class TransactionRepository : ITransactionRepository
               t.TransactionType,
               t.CategoryId,
               t.Date,
-              t.Description
+              t.Description,
+              t.AccountId
           ))
           .ToListAsync();
+  }
+
+  public async Task SaveChangesAsync()
+  {
+    await _context.SaveChangesAsync();
   }
 
   public async Task<Transactions> GetByIdAsync(string id, string userId)
@@ -96,19 +112,13 @@ public class TransactionRepository : ITransactionRepository
     return transaction;
   }
 
-  public async Task<Transactions> RemoveAync(string id, string userId)
+  public void RemoveAync(Transactions transaction)
   {
-    var transactionById = await GetByIdAsync(id, userId);
-    _context.Transactions.Remove(transactionById);
-    await _context.SaveChangesAsync();
-    return transactionById;
+    _context.Transactions.Remove(transaction);
   }
 
-  public async Task<Transactions> UpdateAync(string id, TransactionDTO transactionDTO, string userId)
+  public void UpdateAync(Transactions transactions, TransactionDTO transactionDTO)
   {
-    var transactionById = await GetByIdAsync(id, userId);
-    _context.Entry(transactionById).CurrentValues.SetValues(transactionDTO);
-    await _context.SaveChangesAsync();
-    return transactionById;
+    _context.Entry(transactions).CurrentValues.SetValues(transactionDTO);
   }
 }

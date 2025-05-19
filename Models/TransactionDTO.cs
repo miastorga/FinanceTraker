@@ -17,5 +17,7 @@ public record TransactionDTO(
   [Required(ErrorMessage = "Date is required.")]
   DateTime Date,
 
-  string Description
+  string Description,
+  
+  string? AccountId
   );

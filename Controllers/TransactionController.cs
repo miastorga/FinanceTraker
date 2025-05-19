@@ -144,7 +144,7 @@ namespace PersonalFinanceTrackerAPI.Controllers
         return BadRequest(new ErrorResponse
         {
           ErrorCode = "400",
-          ErrorMessage = ex.Message
+          ErrorMessage = ex.ToString()
         });
       }
     }

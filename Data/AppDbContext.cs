@@ -36,7 +36,9 @@ namespace PersonalFinanceTrackerAPI.Data
       modelBuilder.Entity<Transactions>() // Configura la entidad Transaction (el lado 'muchos' en esta relación)
           .HasOne(t => t.Account)         // Cada Transaction tiene UNA Account (el lado 'uno')
           .WithMany(a => a.Transactions)  // Una Account puede tener MUCHAS Transactions (necesitas public ICollection<Transaction> Transactions {get;set;} en Account)
-          .HasForeignKey(t => t.AccountId) // La clave foránea está en la tabla Transactions y se llama AccountId
+          .HasForeignKey(t => t.AccountId)
+          .IsRequired(false) // ← ESTO HACE LA FK NULLABLE
+          // La clave foránea está en la tabla Transactions y se llama AccountId
           // ** Configura el comportamiento al eliminar una Account **
           // Restrict: Impide eliminar la Account si tiene Transactions. (Suele ser el más seguro)
           // Cascade: Elimina todas las Transactions si se elimina la Account. (Peligroso, fácil perder datos)
