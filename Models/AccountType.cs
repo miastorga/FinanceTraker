@@ -1,11 +1,22 @@
-namespace PersonalFinanceTrackerAPI.Models;
+using System.ComponentModel;
 
+namespace PersonalFinanceTrackerAPI.Models;
 public enum AccountType
 {
-    Checking,     // Cuenta Corriente / Vista
-    Savings,      // Cuenta de Ahorro
-    CreditCard,   // Tarjeta de Crédito
-    Cash,         // Efectivo
-    Investment,   // Inversión
-    Loan          // Préstamo / Deuda (podría ser un tipo de cuenta con saldo negativo)
-} 
+    [Description("Cuenta Corriente")]
+    Checking,
+    [Description("Cuenta de Ahorro")]
+    Savings,
+    [Description("Tarjeta de Crédito")]
+    CreditCard,
+    [Description("Efectivo")]
+    Cash,
+    [Description("Inversión")]
+    Investment,
+    [Description("Préstamo")]
+    Loan,
+    [Description("Cuenta Vista")]
+    Vista,
+    [Description("Deuda")]
+    Deuda
+}

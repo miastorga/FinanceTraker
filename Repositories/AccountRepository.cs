@@ -31,9 +31,21 @@ public class AccountRepository:IAccountRepository
         return account;
     }
 
-    public Task<IEnumerable<AccountResponseDTO>> GetAllAsync(string userId)
+    public async Task<IEnumerable<AccountResponseDTO>> GetAllAsync(string userId)
     {
-        throw new NotImplementedException();
+        var account = await _context.Accounts
+            .Where(c => c.UserId == userId)
+            .Select(c => new AccountResponseDTO
+            {
+                AccountId = c.AccountId,
+                AccountName = c.AccountName,
+                CurrentBalance = c.CurrentBalance,
+                InitialBalance = c.InitialBalance,
+                AccountType = c.AccountType
+            })
+            .ToListAsync();
+
+        return account;
     }
 
     public async Task<Account> RemoveAync(string id, string userId)
@@ -44,8 +56,11 @@ public class AccountRepository:IAccountRepository
         return accountById;
     }
 
-    public Task<Account> UpdateAync(string id, CategoryDTO categoryDTO, string userId)
+    public async Task<Account> UpdateAync(string id, AccountDTO accountDto, string userId)
     {
-        throw new NotImplementedException();
+        var accountById = await GetByIdAsync(id, userId);
+        _context.Entry(accountById).CurrentValues.SetValues(accountDto);
+        await _context.SaveChangesAsync();
+        return accountById;
     }
 }

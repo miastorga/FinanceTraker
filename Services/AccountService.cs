@@ -48,7 +48,6 @@ public class AccountService:IAccountService
         return accounts;
     }
     
-
     public async Task<AccountDTO> RemoveAccountAsync(string id, string userId)
     {
         var account = await _accountRepository.RemoveAync(id, userId);
@@ -62,8 +61,16 @@ public class AccountService:IAccountService
         return accountResponse;
     }
 
-    public Task<AccountDTO> UpdateAccountAsync(string id, AccountDTO accountDTO, string userId)
+    public async Task<AccountDTO> UpdateAccountAsync(string id, AccountDTO accountDTO, string userId)
     {
-        throw new NotImplementedException();
+        var updatedAccount = await _accountRepository.UpdateAync(id, accountDTO, userId);
+        var updatedAccountDTO = new AccountDTO
+        {
+            AccountName = updatedAccount.AccountName,
+            AccountType = updatedAccount.AccountType,
+            CurrentBalance = updatedAccount.CurrentBalance,
+            InitialBalance = updatedAccount.InitialBalance
+        };
+        return updatedAccountDTO;
     }
 }

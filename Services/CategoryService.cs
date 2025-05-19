@@ -55,12 +55,11 @@ public class CategoryService : ICategoryService
 
   public async Task<CategoryDTO> UpdateTransactionAsync(string id, CategoryDTO categoryDTO, string userId)
   {
-
-    var updatedTransaction = await _categoryRepository.UpdateAync(id, categoryDTO, userId);
-    var updatedTransactionDTO = new CategoryDTO
+    var updatedCategory = await _categoryRepository.UpdateAync(id, categoryDTO, userId);
+    var updatedCategoryDTO = new CategoryDTO
        (
-         updatedTransaction.Name
+         updatedCategory.Name
        );
-    return updatedTransactionDTO;
+    return updatedCategoryDTO;
   }
 }
