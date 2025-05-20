@@ -41,7 +41,7 @@ public class FinancialGoalService : IFinancialGoalService
     return response;
   }
 
-  public async Task<PaginatedList<FinancialGoal>> GetAllFinancialGoals(int page, int results, DateTime? startDate, DateTime? endDate, string? categoryName, string? period, int goalAmount, string userId)
+  public async Task<PaginatedList<FinancialGoalDTO>> GetAllFinancialGoals(int page, int results, DateTime? startDate, DateTime? endDate, string? categoryName, string? period, int goalAmount, string userId)
   {
     return await _financialGoalRepository.GetAllFinancialGoalsAsync(page, results, startDate, endDate, categoryName, period, goalAmount, userId);
   }

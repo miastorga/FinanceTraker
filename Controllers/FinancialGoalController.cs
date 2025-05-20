@@ -54,7 +54,7 @@ namespace PersonalFinanceTrackerAPI.Controllers
     }
 
     [HttpGet]
-    public async Task<ActionResult<FinancialGoalDTO>> GetAllFinancialGoals(
+    public async Task<ActionResult<PaginatedList<FinancialGoalDTO>>> GetAllFinancialGoals(
       DateTime? startDate, DateTime? endDate, string? categoryName, string? period, int goalAmount = 0,
       int page = 1, int results = 10
       )

@@ -20,7 +20,7 @@ public class FinancialGoalRepository : IFinancialGoalsRepository
     return financialGoal;
   }
 
-  public async Task<PaginatedList<FinancialGoal>> GetAllFinancialGoalsAsync(int page, int results, DateTime? startDate, DateTime? endDate, string? categoryName, string? period, int goalAmount, string userId)
+  public async Task<PaginatedList<FinancialGoalDTO>> GetAllFinancialGoalsAsync(int page, int results, DateTime? startDate, DateTime? endDate, string? categoryName, string? period, int goalAmount, string userId)
   {
     // Iniciar la consulta base
     var query = _context.FinancialGoals.AsQueryable().Where(t => t.UserId == userId);
@@ -67,10 +67,17 @@ public class FinancialGoalRepository : IFinancialGoalsRepository
         .AsNoTracking()
         .Skip((page - 1) * results)
         .Take(results)
+        .Select(f => new FinancialGoalDTO(
+          f.CategoryId,
+          f.GoalAmount,
+          f.Period,
+          f.StartDate,
+          f.EndDate
+          ))
         .ToListAsync();
 
     // Crear y devolver el objeto paginado
-    return new PaginatedList<FinancialGoal>(goals, totalCount, page, results);
+    return new PaginatedList<FinancialGoalDTO>(goals, totalCount, page, results);
   }
 
   public async Task<FinancialGoal> GetByIdAsync(string id, string userId)
