@@ -195,61 +195,68 @@ public class TransactionService : ITransactionService
     var existingTransaction = await _transactionRepository.GetByIdAsync(id, userId);
     if (existingTransaction == null)
     {
-      throw new InvalidOperationException($"Transaction with ID {id} not found for transaction {id}.");
+        throw new InvalidOperationException($"Transaction with ID {id} not found for user {userId}.");
     }
-    
-    var oldAmount = existingTransaction.Amount;
-    var oldType = existingTransaction.TransactionType;
-    var oldAccountId = existingTransaction.AccountId;
-    
-    var newAmount = transactionDto.Amount;
-    var newType = transactionDto.TransactionType;
-    var newAccountId = transactionDto.AccountId;
-    
-    var oldAccount = await _accountService.GetAccountByIdAsync(oldAccountId, userId);
-    if (oldAccount == null)
-    {
-      throw new InvalidOperationException($"Account with ID {oldAccountId} not found for transaction {id}.");
-    }
-    
-    var oldImpact = (oldType.ToLower() == "ingreso") ? oldAmount : -oldAmount;
-    oldAccount.CurrentBalance -= oldImpact;
-    
-    _transactionRepository.UpdateAync(existingTransaction, transactionDto);
 
-    if (oldAccountId == newAccountId)
+    await using var dbTransaction = await _transactionRepository.BeginTransactionAsync();
+    try
     {
-      var newImpact = (newType.ToLower() == "ingreso") ? newAmount : -newAmount;
-      oldAccount.CurrentBalance += newImpact;
-      await _accountService.UpdateAccountAsync(oldAccountId, oldAccount, userId);
-    }
-    else
-    {
-      await _accountService.UpdateAccountAsync(oldAccountId, oldAccount, userId);
-        
-      var newAccount = await _accountService.GetAccountByIdAsync(newAccountId, userId);
-      if (newAccount == null)
+      var oldAmount = existingTransaction.Amount;
+      var oldType = existingTransaction.TransactionType;
+      var oldAccountId = existingTransaction.AccountId;
+    
+      var newAmount = transactionDto.Amount;
+      var newType = transactionDto.TransactionType;
+      var newAccountId = transactionDto.AccountId;
+    
+      if (!string.IsNullOrEmpty(oldAccountId))
       {
-        throw new InvalidOperationException($"New account with ID {newAccountId} not found.");
-      }
+        var oldAccount = await _accountService.GetAccountByIdAsync(oldAccountId, userId);
+        if (oldAccount == null)
+        {
+          throw new InvalidOperationException($"Account with ID {oldAccountId} not found for user {userId}.");
+        }
         
-      var newImpact = (newType.ToLower() == "ingreso") ? newAmount : -newAmount;
-      newAccount.CurrentBalance += newImpact;
-      await _accountService.UpdateAccountAsync(newAccountId, newAccount, userId);
-    }
-
-    await _transactionRepository.SaveChangesAsync();
+        var oldImpact = (oldType.ToLower() == "ingreso") ? oldAmount : -oldAmount;
+        oldAccount.CurrentBalance -= oldImpact;
+        await _accountService.UpdateAccountAsync(oldAccountId, oldAccount, userId);
+      }
     
-    var updatedTransactionDTO = new TransactionDTO
-       (
-         existingTransaction.Amount,
-         existingTransaction.TransactionType,
-         existingTransaction.CategoryId,
-         existingTransaction.Date,
-         existingTransaction.Description,
-         existingTransaction.AccountId
-       );
+      _transactionRepository.UpdateAync(existingTransaction, transactionDto);
+    
+      if (!string.IsNullOrEmpty(newAccountId))
+      {
+        var newAccount = await _accountService.GetAccountByIdAsync(newAccountId, userId);
+        if (newAccount == null)
+        {
+          throw new InvalidOperationException($"New account with ID {newAccountId} not found for user {userId}.");
+        }
+        
+        var newImpact = (newType.ToLower() == "ingreso") ? newAmount : -newAmount;
+        newAccount.CurrentBalance += newImpact;
+        await _accountService.UpdateAccountAsync(newAccountId, newAccount, userId);
+      }
+    
+      await _transactionRepository.SaveChangesAsync();
 
-    return updatedTransactionDTO;
+      await _transactionRepository.CommitTransactionAsync(dbTransaction);
+    
+      var updatedTransactionDTO = new TransactionDTO
+      (
+        existingTransaction.Amount,
+        existingTransaction.TransactionType,
+        existingTransaction.CategoryId,
+        existingTransaction.Date,
+        existingTransaction.Description,
+        existingTransaction.AccountId
+      );
+    
+      return updatedTransactionDTO;
+    }
+    catch
+    {
+      await _transactionRepository.RollbackTransactionAsync(dbTransaction);
+      throw;
+    }
   }
 }

@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using PersonalFinanceTrackerAPI.Data;
 using PersonalFinanceTrackerAPI.Interfaces;
 using PersonalFinanceTrackerAPI.Models;
@@ -22,7 +23,19 @@ public class TransactionRepository : ITransactionRepository
     await _context.SaveChangesAsync();
     return transaction;
   }
+  public async Task<IDbContextTransaction> BeginTransactionAsync()
+  {
+    return await _context.Database.BeginTransactionAsync();
+  }
+  public async Task CommitTransactionAsync(IDbContextTransaction transaction)
+  {
+    await transaction.CommitAsync();
+  }
 
+  public async Task RollbackTransactionAsync(IDbContextTransaction transaction)
+  {
+    await transaction.RollbackAsync();
+  }
   public async Task<PaginatedList<TransactionResponseDTO>> GetAllTransactionsAsync(string userId, int page, int results, DateTime? startDate, DateTime? endDate, string? categoryName, string? transactionType)
   {
     var query = _context.Transactions.AsQueryable().Where(t => t.UserId == userId);

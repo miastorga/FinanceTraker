@@ -36,7 +36,8 @@ else
 builder.Services.AddControllers()
   .AddJsonOptions(options =>
   {
-    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    //options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    options.JsonSerializerOptions.Converters.Add(new DescriptionEnumConverter<AccountType>());
   });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

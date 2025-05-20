@@ -11,8 +11,8 @@ public class AccountDTO
     [EnumDataType(typeof(AccountType), ErrorMessage = "Not a valid account.")] 
     public AccountType AccountType { get; set; }
     [Required(ErrorMessage = "Account Type is required.")]
-    [Range(1, int.MaxValue, ErrorMessage = "Current value must be greater than zero.")]
+    [Range(1, 100000000, ErrorMessage = "Current value must be greater than zero.")]
     public int CurrentBalance { get; set; }
-    [Range(1, int.MaxValue, ErrorMessage = "Initial value must be greater than zero.")]
+    [Range(1, 100_000_000, ErrorMessage = "Initial value must be greater than zero.")]
     public int InitialBalance { get; set; }
 }

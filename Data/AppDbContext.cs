@@ -14,62 +14,68 @@ namespace PersonalFinanceTrackerAPI.Data
     public DbSet<FinancialGoal> FinancialGoals { get; set; }
     public DbSet<Category> Category { get; set; }
     public DbSet<Account> Accounts { get; set; } 
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    base.OnModelCreating(modelBuilder);
+
+    // Configuración explícita para AccountId nullable
+    modelBuilder.Entity<Transactions>(entity =>
     {
-      base.OnModelCreating(modelBuilder);
+        entity.Property(t => t.AccountId)
+            .IsRequired(false); // Esto hace que la columna sea nullable
+    });
 
-      // Relación entre Transaction y AppUser
-      modelBuilder.Entity<Transactions>()
-          .HasOne(t => t.User)
-          .WithMany(u => u.Transactions)
-          .HasForeignKey(t => t.UserId)
-          .OnDelete(DeleteBehavior.Restrict);
+    modelBuilder.Entity<Transactions>()
+        .HasOne(t => t.User)
+        .WithMany(u => u.Transactions)
+        .HasForeignKey(t => t.UserId)
+        .OnDelete(DeleteBehavior.Restrict);
 
-      // Relación entre Transaction y Category
-      modelBuilder.Entity<Transactions>()
-          .HasOne(t => t.Category)
-          .WithMany(c => c.Transactions)
-          .HasForeignKey(t => t.CategoryId)
-          .OnDelete(DeleteBehavior.Restrict);
+    modelBuilder.Entity<Transactions>()
+        .HasOne(t => t.Category)
+        .WithMany(c => c.Transactions)
+        .HasForeignKey(t => t.CategoryId)
+        .OnDelete(DeleteBehavior.Restrict);
 
-      // ** 2. AGREGA LA CONFIGURACIÓN DE LA RELACIÓN ACCOUNT y TRANSACTION **
-      modelBuilder.Entity<Transactions>() // Configura la entidad Transaction (el lado 'muchos' en esta relación)
-          .HasOne(t => t.Account)         // Cada Transaction tiene UNA Account (el lado 'uno')
-          .WithMany(a => a.Transactions)  // Una Account puede tener MUCHAS Transactions (necesitas public ICollection<Transaction> Transactions {get;set;} en Account)
-          .HasForeignKey(t => t.AccountId)
-          .IsRequired(false) // ← ESTO HACE LA FK NULLABLE
-          // La clave foránea está en la tabla Transactions y se llama AccountId
-          // ** Configura el comportamiento al eliminar una Account **
-          // Restrict: Impide eliminar la Account si tiene Transactions. (Suele ser el más seguro)
-          // Cascade: Elimina todas las Transactions si se elimina la Account. (Peligroso, fácil perder datos)
-          // ClientSetNull: Intenta poner FK a NULL si es nullable. (Requiere que AccountId sea nullable Guid?)
-          .OnDelete(DeleteBehavior.Restrict); // O elige otro comportamiento según tu lógica de negocio
+    // Configuración más específica para AccountId nullable
+    modelBuilder.Entity<Transactions>(entity =>
+    {
+        entity.Property(t => t.AccountId)
+            .IsRequired(false); // Asegura que la propiedad sea nullable
+        
+        entity.HasOne(t => t.Account)
+            .WithMany(a => a.Transactions)
+            .HasForeignKey(t => t.AccountId)
+            .IsRequired(false) // La relación es opcional
+            .OnDelete(DeleteBehavior.SetNull); // Cambiado a SetNull para manejar mejor los nulls
+    }); 
 
-      // Relación entre FinancialGoal y Category
-      modelBuilder.Entity<FinancialGoal>()
-          .HasOne(fg => fg.Category)
-          .WithMany(c => c.FinancialGoals)
-          .HasForeignKey(fg => fg.CategoryId)
-          .OnDelete(DeleteBehavior.Restrict);
+    // Resto de configuraciones...
+    modelBuilder.Entity<FinancialGoal>()
+        .HasOne(fg => fg.Category)
+        .WithMany(c => c.FinancialGoals)
+        .HasForeignKey(fg => fg.CategoryId)
+        .OnDelete(DeleteBehavior.Restrict);
 
-      modelBuilder.Entity<FinancialGoal>()
-          .HasOne(fg => fg.User)
-          .WithMany(u => u.FinancialGoals) // Debes agregar esta propiedad en AppUser
-          .HasForeignKey(fg => fg.UserId)
-          .OnDelete(DeleteBehavior.Restrict);
+    modelBuilder.Entity<FinancialGoal>()
+        .HasOne(fg => fg.User)
+        .WithMany(u => u.FinancialGoals) 
+        .HasForeignKey(fg => fg.UserId)
+        .OnDelete(DeleteBehavior.Restrict);
 
-      modelBuilder.Entity<Category>()
-       .HasOne(c => c.User)
-       .WithMany(u => u.Category) // Necesitarás agregar una colección en AppUser
-       .HasForeignKey(c => c.UserId)
-       .OnDelete(DeleteBehavior.Restrict);
-      
-      modelBuilder.Entity<Account>(entity =>
-      {
-          entity.Property(e => e.AccountType)
-              .HasConversion<string>() // This is the key line
-              .HasColumnType("text"); // Recommended: Specify the column type
-      });
-    }
+    modelBuilder.Entity<Category>()
+     .HasOne(c => c.User)
+     .WithMany(u => u.Category) 
+     .HasForeignKey(c => c.UserId)
+     .OnDelete(DeleteBehavior.Restrict);
+    
+    modelBuilder.Entity<Account>(entity =>
+    {
+        entity.Property(e => e.AccountType)
+            .HasConversion<string>() 
+            .HasColumnType("text"); 
+    });
+}
   }
 }

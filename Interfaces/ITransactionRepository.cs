@@ -1,10 +1,14 @@
 using System;
+using Microsoft.EntityFrameworkCore.Storage;
 using PersonalFinanceTrackerAPI.Models;
 
 namespace PersonalFinanceTrackerAPI.Interfaces;
 
 public interface ITransactionRepository
 {
+  Task<IDbContextTransaction> BeginTransactionAsync();
+  Task CommitTransactionAsync(IDbContextTransaction transaction);
+  Task RollbackTransactionAsync(IDbContextTransaction transaction);
   Task<Transactions> AddAsync(Transactions transaction);
   Task<Transactions> GetByIdAsync(string id, string userId);
   void RemoveAync(Transactions transaction);
