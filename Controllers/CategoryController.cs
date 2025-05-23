@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using FluentValidation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,10 +17,10 @@ namespace PersonalFinanceTrackerAPI.Controllers
   public class CategoryController : ControllerBase
   {
     private readonly ICategoryService _categoryService;
-
     public CategoryController(ICategoryService categoryService)
     {
       _categoryService = categoryService;
+     
     }
     
     [HttpGet]
@@ -78,16 +79,12 @@ namespace PersonalFinanceTrackerAPI.Controllers
     {
       try
       {
-        if (!ModelState.IsValid)
-        {
-          return BadRequest(ModelState);
-        }
-
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (string.IsNullOrEmpty(userId))
         {
           return Unauthorized();
         }
+   
         var createdCategory = await _categoryService.CreateCategoryAsync(category, userId);
 
         var categoriResponse = new CategoryResponseDTO

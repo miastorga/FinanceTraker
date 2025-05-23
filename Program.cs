@@ -1,5 +1,6 @@
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
+using FluentValidation;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
@@ -17,6 +18,7 @@ using PersonalFinanceTrackerAPI.Models;
 using PersonalFinanceTrackerAPI.Repositories;
 using PersonalFinanceTrackerAPI.Services;
 using PersonalFinanceTrackerAPI.Filters;
+using SharpGrip.FluentValidation.AutoValidation.Mvc.Extensions;
 using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -138,8 +140,12 @@ builder.Services.AddSwaggerGen(c =>
     });
 
 });
+// Fluent Validation
 
-// Add CORS
+builder.Services.AddValidatorsFromAssembly(typeof(Program).Assembly,includeInternalTypes:true);
+builder.Services.AddFluentValidationAutoValidation();
+
+// Add COR S
 builder.Services.AddCors(options =>
 {
   options.AddDefaultPolicy(builder =>
